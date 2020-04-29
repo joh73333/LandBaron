@@ -1,0 +1,639 @@
+package application;
+
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Random;
+
+public class LandBaron extends Tile /**implements Comparable<Tile>*/ {
+
+	private int dimensions;
+	private ArrayList<ArrayList<Tile>> gameboard;
+	private int numPasses = 0;
+	private boolean playerTurn = true; //True = Player 1 , False = Player 2 
+	private int player1Budget;
+	private int player2Budget;
+	private int player1Score;
+	private int player2Score;
+	
+	PriorityQueue <Tile> priorityQ;
+
+	/**
+	 * The board will always be square and therefore numberRows X numberRows
+	 * @param numberRows
+	 * Player 1 = True = red
+	 * Player 2 = Odd = blue
+	 * 
+	 */
+	public LandBaron(int newDimensions)
+	{
+		super();
+		gameboard = new ArrayList<ArrayList<Tile>>();
+		System.out.print("Check1");
+		setDimensions(newDimensions);
+		priorityQ = new PriorityQueue(getDimensions()*getDimensions());
+		setPlayer1Budget(getDimensions());
+		setPlayer2Budget(getDimensions());
+		setPlayer1Score(0);
+		setPlayer2Score(0);
+		
+		
+		/**
+		 * Create & initialize a basic board, it may not be fully correct initially
+		 */
+		createBoard(dimensions);
+		initializeBoard();
+
+		/**
+		 * This method will keep resetting the board until diAlgo is able to reach the end (A.K.A. a valid board)
+		 */
+		createValidBoard();
+		System.out.println("Check3");
+	}
+
+	/**
+	 * 
+	 * @param dimensions
+	 */
+	public void createBoard(int dimensions) {
+		for(int i = 0; i < dimensions; i++) {		
+				ArrayList<Tile> rows = new ArrayList<Tile>();
+				gameboard.add(rows);
+				for(int j = 0; j < dimensions; j++) {
+					gameboard.get(i).add(j,new Tile(i, j));
+			}
+		}
+	}
+	
+	/**
+	 * After creating default Tiles at each part of the grid, now randomly generate values at each spot
+	 */
+	public void initializeBoard()
+	{
+		
+		gameboard.get(0).set(0,setTileValues('S',0,0,0,0, ColorOfTile.ends)); //Start is E
+		gameboard.get(getDimensions()-1).set(getDimensions()-1,setTileValues('E',0,0,getDimensions()-1,getDimensions()-1, ColorOfTile.ends));
+		int randomLocations[] = RandomBoardValueGenerator();
+		
+		/**
+		 * Potentially have method that does below (Seed random values)
+		 */
+		for(int i =0; i < getDimensions(); i++)
+		{
+			int row = Math.floorDiv(randomLocations[i], getDimensions());
+			int column = randomLocations[i]%getDimensions();
+			if(randomLocations[i]%2 == 0)
+			{
+			/**
+			 * Potentially have seperate method for when just the character and the Color changes 
+			 */
+			gameboard.get(row).set(column, setTileValues('O',0,0,row,column, ColorOfTile.unbidable));
+			}
+			else {
+				gameboard.get(row).set(column, setTileValues('C',0,0,row,column, ColorOfTile.companyLand));
+			}	
+		}
+		System.out.println("InitializeBoardCheck");
+	}
+	
+	/**
+	 * 
+	 */
+	public void resetGame()
+	{
+		gameboard = new ArrayList<ArrayList<Tile>>(); 
+		createBoard(getDimensions());
+		initializeBoard();
+	}
+	
+	/**
+	 * 
+	 */
+	public void updateTile(int row, int column)
+	{
+		if(playerTurn == true && getPlayer1Budget() > 0) //PlayerTurn = 1
+		{
+			setTileValues('B', gameboard.get(row).get(column).getBid()+1,0,row,column, ColorOfTile.player1);
+			setPlayer1Budget(getPlayer1Budget()-1);
+			setPlayerTurn(false); //switch turns
+			setNumPasses(0);
+		}
+		else if (playerTurn == false && getPlayer2Budget() > 0) //PlayerTurn = 2
+		{
+			setTileValues('B', gameboard.get(row).get(column).getBid()+1,0,row,column, ColorOfTile.player2);
+			setPlayer2Budget(getPlayer2Budget()-1);
+			setPlayerTurn(true); //switch turns
+			setNumPasses(0);
+		}
+	}
+	
+	public void passAction()
+	{
+		if(playerTurn == true)
+		{
+			setPlayerTurn(false);
+			setNumPasses(getNumPasses() + 1);
+		}
+		else {
+			setPlayerTurn(true);
+			setNumPasses(getNumPasses() + 1);
+		}
+	}
+
+	/**
+	 * 
+	 * @param newNumPasses
+	 */
+	public void setNumPasses(int newNumPasses)
+	{
+		numPasses = newNumPasses;
+		return;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getNumPasses()
+	{
+		return numPasses;
+	}
+	
+	/**
+	 * 
+	 * @param TFplayer
+	 */
+	public void setPlayerTurn(boolean TFplayer)
+	{
+		playerTurn = TFplayer;
+		return;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean getPlayerTurn()
+	{
+		return playerTurn;
+	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isGameOver()
+	{
+		if(numPasses == 2)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPlayer1Budget() {
+		return player1Budget;
+	}
+
+	/**
+	 * 
+	 * @param dimensions
+	 */
+	public void setPlayer1Budget(int dimensions) {
+		this.player1Budget = 2*(dimensions*dimensions);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPlayer2Budget() {
+		return player2Budget;
+	}
+
+	/**
+	 * 
+	 * @param dimensions
+	 */
+	public void setPlayer2Budget(int dimensions) {
+		this.player2Budget = 2*(dimensions*dimensions);
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @param bid
+	 * @param key
+	 * @param row
+	 * @param column
+	 * @param newColor
+	 * @return
+	 */
+	public Tile setTileValues(char type, int bid, int key, int row, int column, ColorOfTile newColor)
+	{
+		gameboard.get(row).get(column).setType(type);
+		gameboard.get(row).get(column).setBid(bid);
+		gameboard.get(row).get(column).setKey(key);
+		gameboard.get(row).get(column).setColor(newColor);
+		gameboard.get(row).get(column).setRow(row);
+		gameboard.get(row).get(column).setColumn(column);
+		return gameboard.get(row).get(column);
+	}
+	
+	/**
+	 * Random generator 1 - dimensions (ignore 0,0 and dimension -1 , dimension -1 location because it is the end locations by default)
+	 * To convert a value of 1 - dimensions to corresponding row & column we do the following
+	 * This method gives returns an array of length dimension, the array is filled with numbers between 1 and dimensions - 1 and
+	 * all of them are different from one another. Each of these integers represents a different row and column value. To get
+	 * the row, we take the floor of the random number divided by the dimensions. To get the column, we take the random number and mod 
+	 * it by dimensions. For example, supposed we had a 4*4 matrix. Dimensions would be 4, so this method would output 4 numbers between 1 and 15.
+	 * Supposed it gave the matrix 3,5,10,13, number 13 would correspond to tile 3,1 because the floor of 13/4 is 3 and 13%4 is 1
+	 * IF EVEN then it will be a unbiddable tile
+	 * IF ODD then it will be a Company tile 
+	 * @return
+	 */
+	public int[] RandomBoardValueGenerator() {
+		int size = getDimensions();
+		Random rand = new Random(); 
+		int[] array = new int[size];
+		int i = 0;
+
+		while(i < size) {
+		 int newEntry = rand.nextInt(getDimensions()*getDimensions()-2) + 1;
+		 	for(int j = 0; j <= i; j++) {
+				if(array[j] == newEntry ) {
+					i = j;
+					//System.out.print(i);
+					break;
+				}
+				
+			}
+			array[i] = newEntry;
+		i++;
+		}
+		return array;
+	}
+
+	/**
+	 * 
+	 */
+	public void dijkstraAlgo()
+	{
+		//Queue the first Tile
+		priorityQ.add(gameboard.get(0).get(0));
+		//addValidTilesToQueue(priorityQ.remove());
+		//gameboard.get((getDimensions())-1).get(getDimensions()-1).getHasBeenDeQueued() == false
+		printModel();
+		while(!priorityQ.isEmpty())
+		{
+			//System.out.println("Row: " + priorityQ.peek().getRow() + " Column: " + priorityQ.peek().getColumn() + priorityQ.peek().getHasBeenDeQueued());
+			priorityQ.peek().setHasBeenDeQueued(true);
+			addValidTilesToQueue(priorityQ.peek());
+			priorityQ.poll();
+			printModel();
+		}
+		printModel();
+	}
+	
+	public void printModel()
+	{
+		System.out.println("");
+		for(int i=0; i < getDimensions(); i++)
+		{		for(int j = 0; j < getDimensions(); j++)
+			{
+				System.out.print(gameboard.get(i).get(j).getType() + " ");
+			}
+		System.out.println("");
+	}
+		for(int i=0; i < getDimensions(); i++)
+		{		for(int j = 0; j < getDimensions(); j++)
+			{
+				System.out.print(gameboard.get(i).get(j).getHasBeenDeQueued() + " ");
+			}
+		System.out.println("");
+	}
+	
+		
+		
+	}
+	
+	/**
+	 *Change default value to NOT 0 
+	 * @return
+	 */
+	public void createValidBoard()
+	{
+		dijkstraAlgo();
+		//If this is equal to false, then the location was never arrived at because the value was never dequeued. 
+		if(gameboard.get(getDimensions()-1).get(getDimensions()-1).getHasBeenDeQueued() == true)
+		{
+			// Resetting the previous rows and columns back to 0 since it was changed in Dijkstra Algorithm
+			// HasBeenDeQueued also needs to be set to false for all tiles as a reset for when Dijkstras is run after the game
+			for(int i = 0; i < getDimensions()-1; i++) {
+				for(int j = 0; j < getDimensions()-1; j++) {
+					gameboard.get(i).get(j).setKey(-1);
+					gameboard.get(i).get(j).setPrevColumn(0);
+					gameboard.get(i).get(j).setPrevRow(0);
+					gameboard.get(i).get(j).setHasBeenDeQueued(false);
+					gameboard.get(i).get(j).setBid(0);
+				}
+				
+			}
+		}
+		else{
+			resetGame();
+			createValidBoard();
+		}
+		System.out.print("Made it out of create valid baord");
+	}
+		
+	/**
+	 * Run dijkstraAlgo on the bidd on board to establish previous values as well as distance values (key)
+	 * 1 = Player 1 Winner
+	 * 2 = Player 2 Winner
+	 * 3 = TIE
+	 * @return
+	 */
+	public int determineWinner()
+	{
+		dijkstraAlgo();
+		int currentCheckedRowValue  = gameboard.get(getDimensions()).get(getDimensions()).getRow();
+		int currentCheckedColumnValue  = gameboard.get(getDimensions()).get(getDimensions()).getColumn();
+		
+		//recycle our priority Q, first Tile cannot have bids on it (Bottom Right).
+		priorityQ.add(gameboard.get(getDimensions()).get(getDimensions()));
+		
+		
+		while(currentCheckedRowValue != 0 && currentCheckedColumnValue != 0)
+		{
+			priorityQ.add(gameboard.get(priorityQ.peek().getPrevRow()).get(priorityQ.peek().getPrevColumn()));
+			priorityQ.poll();
+			
+			currentCheckedRowValue = priorityQ.peek().getRow();
+			currentCheckedColumnValue = priorityQ.peek().getColumn();
+			
+			if(priorityQ.peek().getColor() == ColorOfTile.RED)
+			{
+				player1Score += 10 * priorityQ.peek().getBid();
+			}
+			else if(priorityQ.peek().getColor() == ColorOfTile.BLUE)
+			{
+				player2Score += 10 * priorityQ.peek().getBid();
+			}
+		}
+		
+		player1Score += player1Budget;
+		player2Score += player2Budget;
+		if(player1Score > player2Score)
+		{
+			return 1;
+		}
+		else if(player1Score < player2Score)
+		{
+			return 2;
+		}
+		else
+		{
+			return 3;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getFeedback() {
+		return "Not Finished";
+	}
+	
+	
+	/**
+	 * Case 1 -> CheckUp for any position NOT in row 0  
+	 * Case 2 -> CheckDown for any position NOT in the bottom row
+	 * Case 3 -> CheckLeft for any position NOT in the leftmost column
+	 * Case 4 -> CheckRight for any position NOT in the rightmost column
+	 * @param preQueueTile
+	 * @return void
+	 */
+	public void addValidTilesToQueue(Tile preQueueTile)
+	{
+		/** Case 1 */
+		if(preQueueTile.getRow() != getDimensions()-1 && (checkDown(preQueueTile) == true))
+		{
+			priorityQ.add(gameboard.get(preQueueTile.getRow()+1).get(preQueueTile.getColumn()));
+		}
+		
+		/**
+		 * All cases except top row will check Up.
+		 */
+		if(preQueueTile.getRow() != 0 && checkUp(preQueueTile) == true)
+		{
+			priorityQ.add(gameboard.get(preQueueTile.getRow()-1).get(preQueueTile.getColumn()));
+		}
+		
+		/**
+		 * All cases except left column will check left
+		 */
+		if(preQueueTile.getColumn() != 0 && checkLeft(preQueueTile) == true)
+		{
+			priorityQ.add(gameboard.get(preQueueTile.getRow()).get(preQueueTile.getColumn()-1));
+		}
+		
+		/**
+		 * All cases except right column will check right
+		 */
+		if(preQueueTile.getColumn() != getDimensions()-1 && checkRight(preQueueTile) == true)
+		{
+			priorityQ.add(gameboard.get(preQueueTile.getRow()).get(preQueueTile.getColumn()+1));
+		}
+	}
+			
+	/**
+	 * Method 
+	 * @param newPrevRow
+	 * @param newPrevColumn
+	 * @param tile
+	 */
+	public void setPreviousRow_Column(int newPrevRow, int newPrevColumn, Tile borderTile)
+	{
+		borderTile.setPrevRow(newPrevRow);
+		borderTile.setPrevColumn(newPrevColumn);
+	}
+	
+		
+	/**
+	 * If there is no change in keyValue, then nothing occurs
+	 * @param potentialKeyValue
+	 * @param borderTile
+	 */
+	public boolean checkKeyValue(int currentTileRow, int currentTileColumn , Tile borderTile)
+	{
+		if(borderTile.getKey() == -1 || gameboard.get(currentTileRow).get(currentTileColumn).getKey() + borderTile.getBid() < borderTile.getKey())
+		{
+			int newKeyValue = gameboard.get(currentTileRow).get(currentTileColumn).getKey() + borderTile.getBid();
+			borderTile.setKey(newKeyValue);
+			setPreviousRow_Column(currentTileRow, currentTileColumn, borderTile);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+		
+	/**
+	 * Add in the key check as well into each directionally check.
+	 * (1) biddable tile & (2) not yet dequeued & (a) an unvisited location OR (b) contain a key value that can be updated to a smaller value 
+	 * Check with Josh, I have not yet fully updated the other checks yet
+	 * @param tile
+	 * @return
+	 */
+	public boolean checkUp(Tile tile)
+	{	
+		if(gameboard.get(tile.getRow()-1).get(tile.getColumn()).getType() == 'B' || gameboard.get(tile.getRow()-1).get(tile.getColumn()).getType() == 'E'
+			&& gameboard.get(tile.getRow()-1).get(tile.getColumn()).getHasBeenDeQueued() == false
+			&& checkKeyValue(tile.getRow() , tile.getColumn() ,gameboard.get(tile.getRow()-1).get(tile.getColumn())) == true)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param tile
+	 * @return
+	 */
+	public boolean checkDown(Tile tile)
+	{
+		if(gameboard.get(tile.getRow()+1).get(tile.getColumn()).getType() == 'B' || gameboard.get(tile.getRow()+1).get(tile.getColumn()).getType() == 'E' 
+		   && gameboard.get(tile.getRow()+1).get(tile.getColumn()).getHasBeenDeQueued() == false
+		   && checkKeyValue(tile.getRow() , tile.getColumn() ,gameboard.get(tile.getRow()+1).get(tile.getColumn())) == true)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param tile
+	 * @return
+	 */
+	public boolean checkRight(Tile tile)
+	{
+		if(gameboard.get(tile.getRow()).get(tile.getColumn()+1).getType() == 'B' || gameboard.get(tile.getRow()).get(tile.getColumn()+1).getType() == 'E'
+		   && gameboard.get(tile.getRow()).get(tile.getColumn() +1).getHasBeenDeQueued() == false
+		   && checkKeyValue(tile.getRow() , tile.getColumn() ,gameboard.get(tile.getRow()).get(tile.getColumn()+1)) == true)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param tile
+	 * @return
+	 */
+	public boolean checkLeft(Tile tile)
+	{
+		if(gameboard.get(tile.getRow()).get(tile.getColumn()-1).getType() == 'B' || gameboard.get(tile.getRow()).get(tile.getColumn()-1).getType() == 'E'
+		   && gameboard.get(tile.getRow()).get(tile.getColumn()-1).getHasBeenDeQueued() == false
+		   && checkKeyValue(tile.getRow() , tile.getColumn() ,gameboard.get(tile.getRow()).get(tile.getColumn()-1)) == true)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getDimensions() {
+		return dimensions;
+	}
+
+	/**
+	 * 
+	 * @param dimensions
+	 */
+	public void setDimensions(int dimensions) {
+		this.dimensions = dimensions;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPlayer1Score() {
+		return player1Score;
+	}
+
+
+	/**
+	 * 
+	 * @param player1Score
+	 */
+	public void setPlayer1Score(int player1Score) {
+		this.player1Score = player1Score;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPlayer2Score() {
+		return player2Score;
+	}
+
+	/**
+	 * 
+	 * @param player2Score
+	 */
+	public void setPlayer2Score(int player2Score) {
+		this.player2Score = player2Score;
+	}
+	
+	/**
+	 * 
+	 */
+	public int compareTo(Tile newTile) {
+		int newKeyValue = newTile.getKey();
+		
+		if(this.getKey()>newKeyValue)
+		{
+			return 1;
+		}
+		else if(this.getKey() < newKeyValue) {
+			return -1;
+		}
+		else {
+			return 0;
+		}	
+	}
+}
