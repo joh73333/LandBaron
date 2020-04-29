@@ -41,6 +41,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	private int _player1Money;
 	private int _player2Money;
 	
+	
+	private BorderPane root; 
 	private LandBaron landBaronGame;
 	
 	/**
@@ -59,9 +61,10 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		try {
 			
 			
-			landBaronGame = new LandBaron(3);
-			BorderPane root = new BorderPane();
-			_boardButtons = new ArrayList<ArrayList<Button>>();
+			landBaronGame = new LandBaron(4);
+			System.out.print("2");
+			root = new BorderPane();
+	
 			
 			populateButtonArrayList();
 			initializeButtons();
@@ -179,8 +182,11 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			}
 		}	
 	}
-	
+	/**
+	 * landBaronGame.getDimensions();
+	 */
 	private void populateButtonArrayList() {
+		_boardButtons = new ArrayList<ArrayList<Button>>();
 		for (int row = 0; row < landBaronGame.getDimensions(); row++) {
 			ArrayList<Button> rows = new ArrayList<Button>();
 			_boardButtons.add(rows);
@@ -197,7 +203,11 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	public void handle(ActionEvent event) {
 		if(event.getSource() == sizeBoard) {
-			landBaronGame.setDimensions(sizeBoard.getValue());
+			landBaronGame = new LandBaron(sizeBoard.getValue());
+			populateButtonArrayList();
+			initializeButtons();
+			_board.setAlignment(Pos.CENTER);
+			root.setCenter(_board);
 		}
 		
 		if(event.getSource() == _resetGame) {
