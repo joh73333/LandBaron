@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;;
 
 /**
  * Update name values
- * @author Carter_Woetzel
+ * @author Joshua Halverson, Carter_Woetzel
  *
  */
 public enum ColorOfTile {
