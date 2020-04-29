@@ -1,0 +1,211 @@
+package application;
+
+public class Tile {
+		private char type;
+		private int bid;
+		private int key;
+		private int row;
+		private int column;
+		private ColorOfTile color;
+		private int prevRow;
+		private int prevColumn;
+		private boolean hasBeenDeQueued;
+		
+
+		/**
+		 * Char types represent the different types of tiles = E (End) , O (Off Limits) , C (Company Land) , B (Biddable Land)
+		 * a (Player One) , b (player Two)
+		 * @param newType
+		 * @param newBid
+		 * @param newKey
+		 * @param newRow
+		 * @param newColumn
+		 * @param newColor
+		 */
+		public Tile(char newType, int newBid, int newKey, int newRow, int newColumn, ColorOfTile newColor, int prevRow, int prevColumn, boolean newHasBeenDeQueued)
+		{
+			setType(newType);
+			setBid(newBid);
+			setRow(newRow);
+			setKey(newKey);
+			setColumn(newColumn);
+			setColor(newColor);
+			setPrevRow(prevRow);
+			setPrevColumn(prevColumn);
+			setHasBeenDeQueued(newHasBeenDeQueued);
+		}
+
+		/**
+		 * Default Constructor
+		 */
+		public Tile(int newRow, int newColumn)
+		{
+			setType('B');
+			setBid(0);
+			setKey(-1);
+			setRow(newRow);
+			setColumn(newColumn);
+			setColor(ColorOfTile.biddable);
+			setPrevRow(0);
+			setPrevColumn(0);
+			setHasBeenDeQueued(false);
+		}
+		
+		public Tile()
+		{
+			setType('B');
+			setBid(0);
+			setKey(-1);
+			setRow(0);
+			setColumn(0);
+			setColor(ColorOfTile.biddable);
+			setPrevRow(0);
+			setPrevColumn(0);
+			setHasBeenDeQueued(false);
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public char getType() {
+			return type;
+		}
+
+		/**
+		 * 
+		 * @param type
+		 */
+		public void setType(char type) {
+			this.type = type;
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public int getBid() {
+			return bid;
+		}
+
+		/**
+		 * 
+		 * @param bid
+		 */
+		public void setBid(int bid) {
+			this.bid = bid;
+		}
+		
+		/**
+		 * 
+		 * @return
+		 */
+		public int getKey() {
+			return key;
+		}
+
+		/**
+		 * 
+		 * @param key
+		 */
+		public void setKey(int key) {
+			this.key = key;
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public int getRow() {
+			return row;
+		}
+
+		/**
+		 * 
+		 * @param row
+		 */
+		public void setRow(int row) {
+			this.row = row;
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public int getColumn() {
+			return column;
+		}
+
+		/**
+		 * 
+		 * @param column
+		 */
+		public void setColumn(int column) {
+			this.column = column;
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public ColorOfTile getColor() {
+			return color;
+		}
+
+		/**
+		 * 
+		 * @param color
+		 */
+		public void setColor(ColorOfTile color) {
+			this.color = color;
+		}
+		
+		/**
+		 * 
+		 * @return
+		 */
+		public int getPrevRow() {
+			return prevRow;
+		}
+
+		/**
+		 * 
+		 * @param prevRow
+		 */
+		public void setPrevRow(int prevRow) {
+			this.prevRow = prevRow;
+		}
+
+		/**
+		 * 
+		 * @return
+		 */
+		public int getPrevColumn() {
+			return prevColumn;
+		}
+
+		/**
+		 * 
+		 * @param prevColumn
+		 */
+		public void setPrevColumn(int prevColumn) {
+			this.prevColumn = prevColumn;
+		}
+		
+		/**
+		 * 
+		 * @return
+		 */
+		public boolean getHasBeenDeQueued() {
+			return hasBeenDeQueued;
+		}
+
+		/**
+		 * 
+		 * @param hasBeenQueued
+		 */
+		public void setHasBeenDeQueued(boolean hasBeenDeQueued) {
+			this.hasBeenDeQueued = hasBeenDeQueued;
+		}
+
+}
