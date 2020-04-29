@@ -1,0 +1,209 @@
+package application;
+	
+import java.util.ArrayList;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
+public class Main extends Application implements EventHandler<ActionEvent> {
+	
+	// Double array of buttons
+	private ArrayList<ArrayList<Button>> _boardButtons;
+	private GridPane _board;
+	
+	private ComboBox<Integer> sizeBoard;
+	// This holds our board private instance varriable
+	private LandBaron _boardGame;
+
+	private Label _isGameOver;
+	private Label _currentPlayerTurn;
+	private Label _winner;
+	private Label _lasterPlayersMove;
+	private Label _player1MoneyRemaining;
+	private Label _player2MoneyRemaining;
+	
+	private int _player1Money;
+	private int _player2Money;
+	
+	private LandBaron landBaronGame;
+	
+	/**
+	 * 4X4 Is the Default size
+	 */
+
+	
+	private Button _resetGame;
+	private Button _pass;
+	
+	// This holds the Stage variable, aka a game at a time.
+	private Stage _primaryStage;
+	
+	@Override
+	public void start(Stage primaryStage) {
+		try {
+			
+			
+			landBaronGame = new LandBaron(3);
+			BorderPane root = new BorderPane();
+			_boardButtons = new ArrayList<ArrayList<Button>>();
+			
+			populateButtonArrayList();
+			initializeButtons();
+			_board.setAlignment(Pos.CENTER);
+			root.setCenter(_board);
+			
+			_resetGame = new Button();
+			_resetGame.setText("Reset");
+			_resetGame.setOnAction(this);
+			_pass = new Button();
+			_pass.setText("Pass");
+			HBox topPane = new HBox(5);
+			VBox _topPane = new VBox();
+			_topPane.getChildren().add(_resetGame);
+			_topPane.getChildren().add(_pass);
+			topPane.getChildren().add(_topPane);
+			topPane.setAlignment(Pos.CENTER);
+			root.setTop(topPane);
+			
+
+			/**
+			 * ChoiceBox in LeftPane
+			 */
+			sizeBoard = new ComboBox<Integer>();
+			sizeBoard.setItems(FXCollections.observableArrayList(3,4,5,6,7));
+			sizeBoard.setOnAction(this);
+			root.setLeft(sizeBoard);
+			
+			
+			/**
+			private TextField _isGameOver;
+			private TextField _currentPlayerTurn;
+			private TextField _winner;
+			private TextField _lasterPlayersMove;
+			*/
+		
+			VBox bottomPane = new VBox();
+			HBox hbox1 = new HBox();
+			HBox hbox2 = new HBox();
+			HBox hbox3 = new HBox();
+			HBox hbox4 = new HBox();
+			
+			Label currentPlayerTurn = new Label("Current player turn");
+			_currentPlayerTurn = new Label();
+			Label player1Budget = new Label("Player 1 $ remaining");
+			_player1MoneyRemaining = new Label();
+			Label player2Budget = new Label("Playter 2 $ remaining");
+			_player2MoneyRemaining = new Label();
+			Label lastMove = new Label("Last Players Move: Pass | Bid");
+			_lasterPlayersMove = new Label();
+		
+			hbox1.getChildren().addAll(currentPlayerTurn, _currentPlayerTurn);
+			hbox2.getChildren().addAll(player1Budget , _player1MoneyRemaining);
+			hbox3.getChildren().addAll(player2Budget, _player2MoneyRemaining);
+			hbox4.getChildren().addAll(lastMove, _lasterPlayersMove);
+			
+			bottomPane.getChildren().addAll(hbox1, hbox2, hbox3 , hbox4);
+			bottomPane.setAlignment(Pos.CENTER);
+			root.setBottom(bottomPane);
+	
+			
+			/**
+			 * Right Pane
+			 */
+			VBox rightPane = new VBox();
+			HBox rP_hbox1 = new HBox();
+			HBox rP_hbox2 = new HBox();
+			
+			Label gameOverLabel = new Label("State of Game");
+			_isGameOver = new Label();
+			Label winnerLabel = new Label("Winner");
+			_winner = new Label();
+	
+			rP_hbox1.getChildren().addAll(gameOverLabel, _isGameOver);
+			rP_hbox2.getChildren().addAll(winnerLabel, _winner);
+			rightPane.getChildren().addAll(rP_hbox1 , rP_hbox2);
+			rightPane.setAlignment(Pos.BASELINE_LEFT);
+			root.setRight(rightPane);
+			
+	
+			
+			
+			Scene scene = new Scene(root,400,400);
+			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	/**
+	 * This was my solution to making a new game. It closes current application and
+	 * opens a brand new one. I will ask on Monday if this acceptable Or if I need
+	 * an alternative.
+	 */
+	public void reset() {
+		_primaryStage.close();
+		_primaryStage = new Stage();
+		start(_primaryStage);
+	}
+	
+	public void initializeButtons() {
+		_board = new GridPane();
+		// Adding buttons to the root, need to actually add them to the scene, convert
+		// to a double arraylist
+		for (int row = 0; row < landBaronGame.getDimensions(); row++) {
+			for (int column = 0; column < landBaronGame.getDimensions(); column++) {
+				// root.add(buttons.get(i), j, 0);
+				_board.add(_boardButtons.get(row).get(column), row, column);
+			}
+		}	
+	}
+	
+	private void populateButtonArrayList() {
+		for (int row = 0; row < landBaronGame.getDimensions(); row++) {
+			ArrayList<Button> rows = new ArrayList<Button>();
+			_boardButtons.add(rows);
+			for (int column = 0; column < landBaronGame.getDimensions(); column++) {
+				// Can do stuff like
+				Button b = new Button();
+				_boardButtons.get(row).add(column, b);
+			}
+		}
+	}
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+	public void handle(ActionEvent event) {
+		if(event.getSource() == sizeBoard) {
+			landBaronGame.setDimensions(sizeBoard.getValue());
+		}
+		
+		if(event.getSource() == _resetGame) {
+			reset();
+		}
+		
+	}
+	
+}
