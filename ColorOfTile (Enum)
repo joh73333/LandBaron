@@ -1,0 +1,20 @@
+package application;
+
+import javafx.scene.paint.Color;;
+
+/**
+ * Update name values
+ * @author Carter_Woetzel
+ *
+ */
+public enum ColorOfTile {
+	player1,player2, companyLand, unbidable, biddable,ends,  RED, BLUE, GREEN, PINK , GREY,WHITE;
+	/**
+	 * RED = Player 1
+	 * Blue = Player 2
+	 * Green = Ends = E
+	 * Pink = Company Land = C
+	 * Grey = Biddable = B
+	 * White = Unbiddable (off limits) = O
+	 */
+}
